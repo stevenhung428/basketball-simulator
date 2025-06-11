@@ -3,11 +3,11 @@ import numpy as np
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="投籃模擬器：動畫 + 統計")
-st.title("🏀 投籃模擬器")
+st.set_page_config(page_title="投籃模擬器：動畫 + 統計 + 3D")
+st.title("\U0001F3C0 投籃模擬器")
 
 # 模式選擇
-mode = st.radio("請選擇模式", ["🎥 拋物線動畫", "📊 命中率統計模擬"])
+mode = st.radio("請選擇模式", ["\U0001F3A5 拋物線動畫", "\U0001F4CA 命中率統計模擬", "\U0001F3AC 3D 拋物線模擬"])
 
 # 共用參數
 v = st.slider("平均初速度（m/s）", 1.0, 20.0, 10.0)
@@ -40,7 +40,7 @@ def simulate_once(theta_rad, v_input):
     return traj_x, traj_y, False
 
 # 拋物線動畫模式
-if mode == "🎥 拋物線動畫":
+if mode == "\U0001F3A5 拋物線動畫":
     speed_ms = st.slider("動畫速度（毫秒/frame）", 10, 300, 30, step=10)
     theta_rad = np.radians(theta_deg)
     traj_x, traj_y, _ = simulate_once(theta_rad, v)
@@ -53,7 +53,7 @@ if mode == "🎥 拋物線動畫":
     fig = go.Figure(
         data=[go.Scatter(x=[], y=[], mode='lines+markers')],
         layout=go.Layout(
-            title="🏀 投籃拋物線動畫",
+            title="\U0001F3C0 投籃拋物線動畫",
             xaxis=dict(range=[0, max(traj_x)*1.1], title='水平距離 (m)'),
             yaxis=dict(range=[0, max(traj_y)*1.2], title='垂直高度 (m)'),
             updatemenus=[dict(
@@ -71,10 +71,9 @@ if mode == "🎥 拋物線動畫":
     st.plotly_chart(fig)
 
 # 命中率統計模式
-else:
+elif mode == "\U0001F4CA 命中率統計模擬":
     n_runs = st.slider("模擬輪數", 1, 20, 10)
     n_per_run = st.slider("每輪投籃次數", 10, 300, 100)
-
     progress = st.progress(0)
     hit_rates = []
 
@@ -89,7 +88,7 @@ else:
         hit_rates.append(hits / n_per_run)
         progress.progress((run + 1) / n_runs)
 
-    st.subheader("📊 命中率變化圖")
+    st.subheader("\U0001F4CA 命中率變化圖")
     fig2, ax = plt.subplots()
     ax.plot(range(1, len(hit_rates)+1), [r*100 for r in hit_rates], marker='o')
     ax.set_xlabel("測試輪次")
@@ -97,6 +96,89 @@ else:
     ax.set_title("命中率是否進步？")
     ax.grid(True)
     st.pyplot(fig2)
+    st.write(f"\U0001F3AF 平均命中率：{np.mean(hit_rates)*100:.2f}%")
+    st.write(f"\U0001F4C8 最佳命中率：{max(hit_rates)*100:.1f}%")
+    st.write(f"\U0001F4C9 最差命中率：{min(hit_rates)*100:.1f}%")
+
+# 3D 模擬模式
+elif mode == "\U0001F3AC 3D 拋物線模擬":
+    st.subheader("\U0001F9CA 3D 投籃模擬")
+    num_balls = st.slider("模擬球數", 1, 30, 10)
+    speed_ms = st.slider("動畫速度（毫秒/frame）", 10, 300, 50, step=10)
+
+    all_trajectories = []
+    max_x, max_y, max_z = 0, 0, 0
+
+    for i in range(num_balls):
+        theta_rand = np.radians(theta_deg + np.random.normal(0, 2))
+        v_rand = v + np.random.normal(0, 0.5)
+        vx = v_rand * np.cos(theta_rand) + v_wind
+        vy = v_rand * np.sin(theta_rand)
+        x, y, z = 0.0, y0, 0.0
+        dt = 0.01
+        x_list, y_list, z_list = [], [], []
+        lateral_drift = np.random.uniform(-0.4, 0.4)
+
+        while y >= 0 and x <= 10:
+            x_list.append(x)
+            y_list.append(z)
+            z_list.append(y)
+            ax = -k_drag * vx * abs(vx)
+            ay = -9.8 - k_drag * vy * abs(vy) + s_magnus * vx * spin_rate
+            vx += ax * dt
+            vy += ay * dt
+            x += vx * dt
+            y += vy * dt
+            z += lateral_drift * dt
+
+        color = "green" if abs(x - 4.5) < 0.3 and abs(y - 3.05) < 0.3 and abs(z) < 0.3 else "red"
+        all_trajectories.append((x_list, y_list, z_list, color))
+        max_x = max(max_x, max(x_list))
+        max_y = max(max_y, max(y_list))
+        max_z = max(max_z, max(z_list))
+
+    frames = []
+    max_len = max(len(t[0]) for t in all_trajectories)
+    for i in range(0, max_len, 2):
+        data = []
+        for x_list, y_list, z_list, color in all_trajectories:
+            x_i = x_list[:i] if i < len(x_list) else x_list
+            y_i = y_list[:i] if i < len(y_list) else y_list
+            z_i = z_list[:i] if i < len(z_list) else z_list
+            data.append(go.Scatter3d(
+                x=x_i, y=y_i, z=z_i,
+                mode='lines',
+                line=dict(color=color, width=4)
+            ))
+        data.append(go.Scatter3d(
+            x=[4.5], y=[0], z=[3.05],
+            mode='markers+text',
+            marker=dict(color='blue', size=6),
+            text=["籃框"],
+            textposition="top center"
+        ))
+        frames.append(go.Frame(data=data))
+
+    layout = go.Layout(
+        scene=dict(
+            xaxis=dict(title='X (前後)'),
+            yaxis=dict(title='Z (左右)'),
+            zaxis=dict(title='Y (高度)')
+        ),
+        margin=dict(l=0, r=0, b=0, t=40),
+        title="\U0001F3C0 多球 3D 拋物線動畫",
+        updatemenus=[dict(
+            type="buttons",
+            showactive=False,
+            buttons=[dict(label="播放", method="animate",
+                          args=[None, {"frame": {"duration": speed_ms, "redraw": True},
+                                       "fromcurrent": True}])]
+        )]
+    )
+
+    fig = go.Figure(data=[], layout=layout, frames=frames)
+    st.plotly_chart(fig)
+
 
     st.write(f"🎯 平均命中率：{np.mean(hit_rates)*100:.2f}%")
     st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
