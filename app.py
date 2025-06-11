@@ -101,3 +101,5 @@ else:
     st.write(f"🎯 平均命中率：{np.mean(hit_rates)*100:.2f}%")
     st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
     st.write(f"📉 最差命中率：{min(hit_rates)*100:.1f}%")
+    st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
+    st.write(f"📉 最差命中率：{min(hit_rates)*100:.1f}%")
