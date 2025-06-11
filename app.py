@@ -73,7 +73,7 @@ if mode == "\U0001F3A5 拋物線動畫":
 # 命中率統計模式
 elif mode == "\U0001F4CA 命中率統計模擬":
     n_runs = st.slider("模擬輪數", 1, 20, 10)
-    n_per_run = st.slider("每輪投籃次數", 10, 300, 100)
+    n_per_run = st.slider("每輪投籃次數", 1, 300, 100)
     progress = st.progress(0)
     hit_rates = []
 
@@ -96,9 +96,13 @@ elif mode == "\U0001F4CA 命中率統計模擬":
     ax.set_title("命中率是否進步？")
     ax.grid(True)
     st.pyplot(fig2)
-    st.write(f"\U0001F3AF 平均命中率：{np.mean(hit_rates)*100:.2f}%")
-    st.write(f"\U0001F4C8 最佳命中率：{max(hit_rates)*100:.1f}%")
-    st.write(f"\U0001F4C9 最差命中率：{min(hit_rates)*100:.1f}%")
+
+    if hit_rates:
+        st.write(f"\U0001F3AF 平均命中率：{np.mean(hit_rates)*100:.2f}%")
+        st.write(f"\U0001F4C8 最佳命中率：{max(hit_rates)*100:.1f}%")
+        st.write(f"\U0001F4C9 最差命中率：{min(hit_rates)*100:.1f}%")
+    else:
+        st.warning("⚠️ 尚未完成模擬，無法計算命中率統計")
 
 # 3D 模擬模式
 elif mode == "\U0001F3AC 3D 拋物線模擬":
@@ -178,10 +182,3 @@ elif mode == "\U0001F3AC 3D 拋物線模擬":
 
     fig = go.Figure(data=[], layout=layout, frames=frames)
     st.plotly_chart(fig)
-
-
-    st.write(f"🎯 平均命中率：{np.mean(hit_rates)*100:.2f}%")
-    st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
-    st.write(f"📉 最差命中率：{min(hit_rates)*100:.1f}%")
-    st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
-    st.write(f"📉 最差命中率：{min(hit_rates)*100:.1f}%")
