@@ -8,6 +8,7 @@ st.title("🏀 投籃模擬器")
 
 mode = st.radio("請選擇模式", ["🎥 拋物線動畫", "📊 命中率統計模擬", "🎬 3D 拋物線模擬"])
 
+# 共用參數
 v = st.slider("平均初速度（m/s）", 1.0, 20.0, 10.0)
 theta_deg = st.slider("平均投擲角度（°）", 10.0, 80.0, 45.0)
 y0 = st.slider("出手高度（m）", 1.2, 2.5, 1.8)
@@ -16,6 +17,7 @@ spin_rate = st.slider("旋轉圈速（圈/秒）", 0.0, 100.0, 30.0)
 k_drag = st.slider("空氣阻力係數", 0.0, 0.1, 0.02)
 s_magnus = st.slider("馬格努斯係數", 0.0, 0.05, 0.01)
 
+# 單次模擬函數（支援 x, y, z）
 def simulate_once(theta_rad, v_input):
     vx = v_input * np.cos(theta_rad) + v_wind
     vy = v_input * np.sin(theta_rad)
@@ -40,6 +42,7 @@ def simulate_once(theta_rad, v_input):
             return traj_x, traj_y, traj_z, True
     return traj_x, traj_y, traj_z, False
 
+# 模式 A：拋物線動畫（2D）
 if mode == "🎥 拋物線動畫":
     speed_ms = st.slider("動畫速度（毫秒/frame）", 10, 300, 30, step=10)
     theta_rad = np.radians(theta_deg)
@@ -56,8 +59,8 @@ if mode == "🎥 拋物線動畫":
             type="buttons",
             showactive=False,
             buttons=[dict(label="播放", method="animate",
-                          args=[None, {"frame": {"duration": speed_ms, "redraw": True}, "fromcurrent": True}])]
-        )]
+                          args=[None, {"frame": {"duration": speed_ms, "redraw": True}, "fromcurrent": True}])])
+        ]
     )
     fig = go.Figure(data=[go.Scatter(x=[], y=[], mode='lines+markers')], layout=layout, frames=frames)
     fig.add_trace(go.Scatter(x=[4.5], y=[3.05], mode='markers+text',
@@ -65,6 +68,7 @@ if mode == "🎥 拋物線動畫":
                              text=["籃框"], textposition="top center"))
     st.plotly_chart(fig)
 
+# 模式 B：命中率統計模擬
 elif mode == "📊 命中率統計模擬":
     n_runs = st.slider("模擬輪數", 1, 20, 10)
     n_per_run = st.slider("每輪投籃次數", 10, 300, 100)
@@ -92,14 +96,15 @@ elif mode == "📊 命中率統計模擬":
     st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
     st.write(f"📉 最差命中率：{min(hit_rates)*100:.1f}%")
 
+# 模式 C：3D 拋物線模擬
 elif mode == "🎬 3D 拋物線模擬":
     num_balls = st.slider("投籃次數（顆）", 1, 30, 10)
     theta_rad = np.radians(theta_deg)
     all_trajectories = []
     for _ in range(num_balls):
         t = simulate_once(theta_rad + np.random.normal(0, 0.05), v + np.random.normal(0, 0.5))
-        if len(t[0]) > 1:
-            all_trajectories.append(t)
+        all_trajectories.append(t)  # ⬅️ 不再過濾掉失敗球
+
     if not all_trajectories:
         st.error("⚠️ 所有球的模擬都失敗，請調整初速度或角度試試看！")
     else:
@@ -113,11 +118,13 @@ elif mode == "🎬 3D 拋物線模擬":
                         x=t[0][:i], y=t[2][:i], z=t[1][:i],
                         mode='lines', line=dict(width=4)))
             frames.append(go.Frame(data=frame_data))
+
         first_frame_data = []
         for t in all_trajectories:
             first_frame_data.append(go.Scatter3d(
                 x=[t[0][0]], y=[t[2][0]], z=[t[1][0]],
                 mode='lines', line=dict(width=4)))
+
         layout = go.Layout(
             scene=dict(
                 xaxis=dict(title='水平距離 (m)', range=[0, 10]),
@@ -129,7 +136,8 @@ elif mode == "🎬 3D 拋物線模擬":
                 type="buttons",
                 showactive=False,
                 buttons=[dict(label="播放", method="animate",
-                              args=[None, {"frame": {"duration": 50, "redraw": True}, "fromcurrent": True}])])]
+                              args=[None, {"frame": {"duration": 50, "redraw": True}, "fromcurrent": True}])])
+            ]
         )
         fig = go.Figure(data=first_frame_data, layout=layout, frames=frames)
         fig.add_trace(go.Scatter3d(
