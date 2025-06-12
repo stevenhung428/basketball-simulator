@@ -181,4 +181,4 @@ elif mode == "🎬 3D 拋物線模擬":
     )
 
     fig = go.Figure(data=[], layout=layout, frames=frames)
-    st.plotly_chart(
+    st.plotly_chart(fig)
