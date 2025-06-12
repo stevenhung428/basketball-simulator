@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="投籃模擬器：動畫 + 統計 + 3D")
 st.title("🏀 投籃模擬器")
-
+layout = go.Layout()
+frames = []
 mode = st.radio("請選擇模式", ["🎥 拋物線動畫", "📊 命中率統計模擬", "🎬 3D 拋物線模擬"])
 
 v = st.slider("平均初速度（m/s）", 1.0, 20.0, 10.0)
