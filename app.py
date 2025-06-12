@@ -4,10 +4,10 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="投籃模擬器：動畫 + 統計 + 3D")
-st.title("\U0001F3C0 投籃模擬器")
+st.title("🏀 投籃模擬器")
 
 # 模式選擇
-mode = st.radio("請選擇模式", ["\U0001F3A5 拋物線動畫", "\U0001F4CA 命中率統計模擬", "\U0001F3AC 3D 拋物線模擬"])
+mode = st.radio("請選擇模式", ["🎥 拋物線動畫", "📊 命中率統計模擬", "🎬 3D 拋物線模擬"])
 
 # 共用參數
 v = st.slider("平均初速度（m/s）", 1.0, 20.0, 10.0)
@@ -40,7 +40,7 @@ def simulate_once(theta_rad, v_input):
     return traj_x, traj_y, False
 
 # 拋物線動畫模式
-if mode == "\U0001F3A5 拋物線動畫":
+if mode == "🎥 拋物線動畫":
     speed_ms = st.slider("動畫速度（毫秒/frame）", 10, 300, 30, step=10)
     theta_rad = np.radians(theta_deg)
     traj_x, traj_y, _ = simulate_once(theta_rad, v)
@@ -53,7 +53,7 @@ if mode == "\U0001F3A5 拋物線動畫":
     fig = go.Figure(
         data=[go.Scatter(x=[], y=[], mode='lines+markers')],
         layout=go.Layout(
-            title="\U0001F3C0 投籃拋物線動畫",
+            title="🏀 投籃拋物線動畫",
             xaxis=dict(range=[0, max(traj_x)*1.1], title='水平距離 (m)'),
             yaxis=dict(range=[0, max(traj_y)*1.2], title='垂直高度 (m)'),
             updatemenus=[dict(
@@ -71,7 +71,7 @@ if mode == "\U0001F3A5 拋物線動畫":
     st.plotly_chart(fig)
 
 # 命中率統計模式
-elif mode == "\U0001F4CA 命中率統計模擬":
+elif mode == "📊 命中率統計模擬":
     n_runs = st.slider("模擬輪數", 1, 20, 10)
     n_per_run = st.slider("每輪投籃次數", 1, 300, 100)
     progress = st.progress(0)
@@ -88,7 +88,7 @@ elif mode == "\U0001F4CA 命中率統計模擬":
         hit_rates.append(hits / n_per_run)
         progress.progress((run + 1) / n_runs)
 
-    st.subheader("\U0001F4CA 命中率變化圖")
+    st.subheader("📊 命中率變化圖")
     fig2, ax = plt.subplots()
     ax.plot(range(1, len(hit_rates)+1), [r*100 for r in hit_rates], marker='o')
     ax.set_xlabel("測試輪次")
@@ -98,15 +98,15 @@ elif mode == "\U0001F4CA 命中率統計模擬":
     st.pyplot(fig2)
 
     if hit_rates:
-        st.write(f"\U0001F3AF 平均命中率：{np.mean(hit_rates)*100:.2f}%")
-        st.write(f"\U0001F4C8 最佳命中率：{max(hit_rates)*100:.1f}%")
-        st.write(f"\U0001F4C9 最差命中率：{min(hit_rates)*100:.1f}%")
+        st.write(f"🎯 平均命中率：{np.mean(hit_rates)*100:.2f}%")
+        st.write(f"📈 最佳命中率：{max(hit_rates)*100:.1f}%")
+        st.write(f"📉 最差命中率：{min(hit_rates)*100:.1f}%")
     else:
         st.warning("⚠️ 尚未完成模擬，無法計算命中率統計")
 
 # 3D 模擬模式
-elif mode == "\U0001F3AC 3D 拋物線模擬":
-    st.subheader("\U0001F9CA 3D 投籃模擬")
+elif mode == "🎬 3D 拋物線模擬":
+    st.subheader("🧊 3D 投籃模擬")
     num_balls = st.slider("模擬球數", 1, 30, 10)
     speed_ms = st.slider("動畫速度（毫秒/frame）", 10, 300, 50, step=10)
 
@@ -170,7 +170,7 @@ elif mode == "\U0001F3AC 3D 拋物線模擬":
             zaxis=dict(title='Y (高度)')
         ),
         margin=dict(l=0, r=0, b=0, t=40),
-        title="\U0001F3C0 多球 3D 拋物線動畫",
+        title="🏀 多球 3D 拋物線動畫",
         updatemenus=[dict(
             type="buttons",
             showactive=False,
