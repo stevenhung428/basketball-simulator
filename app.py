@@ -140,4 +140,4 @@ elif mode == "🎬 3D 拋物線模擬":
             mode='markers+text',
             marker=dict(size=6, color='blue'),
             text=["籃框"], textposition='top center'))
-        st.plotly_chart(fig)
+        st.plotly_chart(fig)ㄚ
